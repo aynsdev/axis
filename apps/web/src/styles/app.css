@@ -1,0 +1,107 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Expose semantic tokens as Tailwind utilities: bg-surface, text-fg, border-line, … */
+@theme inline {
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+
+  --color-canvas: var(--color-bg-canvas);
+  --color-surface: var(--color-bg-primary);
+  --color-subtle: var(--color-bg-secondary);
+  --color-hover: var(--color-bg-tertiary);
+  --color-active: var(--color-bg-active);
+
+  --color-fg: var(--color-text-primary);
+  --color-fg-secondary: var(--color-text-secondary);
+  --color-fg-muted: var(--color-text-tertiary);
+  --color-fg-placeholder: var(--color-text-placeholder);
+  --color-fg-disabled: var(--color-text-disabled);
+
+  --color-line: var(--color-border-primary);
+  --color-line-subtle: var(--color-border-secondary);
+
+  --color-action: var(--color-button-primary-bg);
+  --color-action-hover: var(--color-button-primary-bg-hover);
+  --color-on-action: var(--color-button-primary-fg);
+  --color-ring: var(--color-focus-ring);
+
+  --color-success: var(--color-text-success);
+  --color-success-bg: var(--color-bg-success);
+  --color-warning: var(--color-text-warning);
+  --color-warning-bg: var(--color-bg-warning);
+  --color-error: var(--color-text-error);
+  --color-error-bg: var(--color-bg-error);
+  --color-info: var(--color-text-info);
+  --color-info-bg: var(--color-bg-info);
+
+
+  --text-h1: var(--text-h1-size);
+  --text-h1--line-height: var(--text-h1-line-height);
+  --text-h2: var(--text-h2-size);
+  --text-h2--line-height: var(--text-h2-line-height);
+  --text-h3: var(--text-h3-size);
+  --text-h3--line-height: var(--text-h3-line-height);
+  --text-h4: var(--text-h4-size);
+  --text-h4--line-height: var(--text-h4-line-height);
+  --text-body-lg: var(--text-body-lg-size);
+  --text-body-lg--line-height: var(--text-body-lg-line-height);
+  --text-body: var(--text-body-size);
+  --text-body--line-height: var(--text-body-line-height);
+  --text-small: var(--text-small-size);
+  --text-small--line-height: var(--text-small-line-height);
+}
+
+/* Pedi radius scale */
+@theme {
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    background: var(--color-bg-canvas);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-sans);
+    font-size: var(--text-body-size);
+    line-height: var(--text-body-line-height);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-family-display);
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--color-text-primary);
+    color: var(--color-bg-canvas);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

@@ -1,0 +1,144 @@
+/*
+ * aynshq theme: Pedi token names and structure with a monochrome skin.
+ * Pedi Red is replaced with near-black / off-white as the action color.
+ * Semantic status hues stay, because status must stay legible.
+ * Dark is the default; [data-theme] switches to light or system.
+ */
+
+:root {
+  /* Typography (Pedi typography.json) */
+  --font-family-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-family-display: var(--font-family-sans);
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --text-h1-size: 28px;   --text-h1-line-height: 36px;
+  --text-h2-size: 24px;   --text-h2-line-height: 32px;
+  --text-h3-size: 20px;   --text-h3-line-height: 30px;
+  --text-h4-size: 16px;   --text-h4-line-height: 24px;
+  --text-body-lg-size: 16px; --text-body-lg-line-height: 24px;
+  --text-body-size: 14px; --text-body-line-height: 20px;
+  --text-small-size: 12px; --text-small-line-height: 18px;
+
+  /* Layout */
+  --sidebar-width: 15.5rem;
+  --sidebar-width-collapsed: 3.5rem;
+  --header-height: 3.5rem;
+}
+
+/* ---------- Dark (default) ---------- */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-bg-canvas: #0d0d0d;
+  --color-bg-primary: #141414;       /* cards, header, sidebar */
+  --color-bg-secondary: #1a1a1a;     /* subtle fills, inputs */
+  --color-bg-tertiary: #222222;      /* hover */
+  --color-bg-active: #2a2a2a;        /* selected nav item */
+
+  --color-text-primary: #f5f5f5;
+  --color-text-secondary: #d4d4d4;
+  --color-text-tertiary: #a3a3a3;
+  --color-text-placeholder: #8a8a8a;
+  --color-text-disabled: #5c5c5c;
+
+  --color-border-primary: #333333;
+  --color-border-secondary: #262626;
+
+  --color-button-primary-bg: #f5f5f5;
+  --color-button-primary-bg-hover: #d4d4d4;
+  --color-button-primary-fg: #0d0d0d;
+
+  --color-focus-ring: #e5e5e5;
+
+  --color-text-success: #47cd89;  --color-bg-success: rgb(71 205 137 / 0.12);
+  --color-text-warning: #fdb022;  --color-bg-warning: rgb(253 176 34 / 0.12);
+  --color-text-error: #f97066;    --color-bg-error: rgb(249 112 102 / 0.12);
+  --color-text-info: #84adff;     --color-bg-info: rgb(132 173 255 / 0.12);
+
+  --color-chart-bar: #d4d4d4;
+  --color-chart-bar-hover: #ffffff;
+  --color-chart-grid: #262626;
+
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.5);
+}
+
+/* ---------- Light ---------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg-canvas: #fafafa;
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #ededed;
+  --color-bg-active: #e5e5e5;
+
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #404040;
+  --color-text-tertiary: #525252;
+  --color-text-placeholder: #737373;
+  --color-text-disabled: #a3a3a3;
+
+  --color-border-primary: #d4d4d4;
+  --color-border-secondary: #e5e5e5;
+
+  --color-button-primary-bg: #171717;
+  --color-button-primary-bg-hover: #333333;
+  --color-button-primary-fg: #ffffff;
+
+  --color-focus-ring: #171717;
+
+  --color-text-success: #067647;  --color-bg-success: #ecfdf3;
+  --color-text-warning: #b54708;  --color-bg-warning: #fffaeb;
+  --color-text-error: #d92d20;    --color-bg-error: #fef3f2;
+  --color-text-info: #175cd3;     --color-bg-info: #eff8ff;
+
+  --color-chart-bar: #404040;
+  --color-chart-bar-hover: #0a0a0a;
+  --color-chart-grid: #e5e5e5;
+
+  --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.12);
+}
+
+/* ---------- System: follow the OS when it prefers light ---------- */
+@media (prefers-color-scheme: light) {
+  :root[data-theme="system"] {
+    color-scheme: light;
+
+    --color-bg-canvas: #fafafa;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f5f5f5;
+    --color-bg-tertiary: #ededed;
+    --color-bg-active: #e5e5e5;
+
+    --color-text-primary: #0a0a0a;
+    --color-text-secondary: #404040;
+    --color-text-tertiary: #525252;
+    --color-text-placeholder: #737373;
+    --color-text-disabled: #a3a3a3;
+
+    --color-border-primary: #d4d4d4;
+    --color-border-secondary: #e5e5e5;
+
+    --color-button-primary-bg: #171717;
+    --color-button-primary-bg-hover: #333333;
+    --color-button-primary-fg: #ffffff;
+
+    --color-focus-ring: #171717;
+
+    --color-text-success: #067647;  --color-bg-success: #ecfdf3;
+    --color-text-warning: #b54708;  --color-bg-warning: #fffaeb;
+    --color-text-error: #d92d20;    --color-bg-error: #fef3f2;
+    --color-text-info: #175cd3;     --color-bg-info: #eff8ff;
+
+    --color-chart-bar: #404040;
+    --color-chart-bar-hover: #0a0a0a;
+    --color-chart-grid: #e5e5e5;
+
+    --shadow-overlay: 0 12px 32px rgb(0 0 0 / 0.12);
+  }
+}
