@@ -2,6 +2,13 @@
 
 Local agents hub for Claude Code and Codex. Queue tasks against your repos, watch agents work live, review their diffs, and track token usage and spend.
 
+> [!WARNING]
+> **Axis is designed for local use only.**
+>
+> Don't expose the hub or dashboard to the internet, a LAN, a tunnel, a reverse proxy or a shared server. Axis starts coding agents with access to your local repositories, shell commands, Git remotes, Claude and Codex credentials, and GitHub CLI authentication. In **Full access** mode, the agents' own permission checks are off.
+>
+> Only run Axis on a trusted machine with the default `127.0.0.1` binding. See [SECURITY.md](SECURITY.md) to report a vulnerability.
+
 ## Getting started
 
 ### Prerequisites
@@ -83,7 +90,8 @@ AXIS_PORT=4400 pnpm dev   # the dashboard proxy follows AXIS_PORT
 
 On a finished task with commits, **Open PR** lets you review the title, description and draft flag. It then pushes `hub/<task-id>` to `origin` and runs `gh pr create` against the task's base branch. If you tick **Open a draft PR when it succeeds** when creating a task, the hub does this automatically.
 
-- If you leave the description empty, the hub uses the agent's final message, the prompt and the diff stat.
+- If you leave the description empty, the hub uses the agent's final message and the diff stat.
+- The task prompt is left out unless you tick **Include the task prompt in the description**. Automatic draft PRs never include it. Anyone who can see the PR can read its description, so don't put secrets, customer data or confidential details in a prompt you include.
 - If a PR already exists for the branch, for example one the agent opened itself, the hub links it instead of opening a new one.
 - Open PRs are refreshed every 2 minutes: state (open, draft, merged, closed), CI checks and review decision.
 - Requires `gh auth login` and an `origin` remote. Every step is logged in the task's activity.
@@ -125,6 +133,17 @@ It only reads bytes added since the last pass. The first import of about 2 GB ta
 
 The hub tails transcripts every 2 seconds while a dashboard is open, so updates are near real time.
 
+## Local data
+
+Axis keeps everything on your machine, in `~/.axis` (or `AXIS_HOME`):
+
+- `hub.db`: task prompts and logs, agent summaries, repository paths, settings, templates, imported token usage and session metadata, and the latest plan-limit readings.
+- `worktrees/`: a git worktree for every task, with the agent's changes.
+
+Axis also reads, but never changes, Claude Code and Codex transcripts in `~/.claude` and `~/.codex`, and Claude Code's login for plan limits.
+
+To remove Axis's data, stop the hub and delete `~/.axis` (and `~/.aynshq` if you used Axis under its old name). Remove worktrees first with **Remove worktree** on each task, or run `git worktree prune` in the repos afterwards.
+
 ## Project layout
 
 ```
@@ -164,3 +183,7 @@ The hub binds to 127.0.0.1. It rejects foreign `Host`/`Origin` headers and requi
 - [x] Phase 3: open PRs from tasks (manual or automatic draft), live PR status
 - [x] Phase 4: notifications (desktop + in-app), task priorities, templates, settings page
 - [x] Phase 5: Workspace (live 3D office of sessions, team and sub agents), Claude plan limits
+
+## Contributing and license
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Axis is released under the [MIT License](LICENSE).

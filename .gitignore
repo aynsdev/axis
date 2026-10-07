@@ -3,4 +3,34 @@ dist
 .DS_Store
 *.log
 .env
+.env.*
+!.env.example
 .vite
+
+# Local app data
+.axis
+.aynshq
+*.db
+*.sqlite
+*.sqlite3
+*.db-wal
+*.db-shm
+
+# Secrets / credentials
+*.pem
+*.key
+*.p12
+*.crt
+*.cert
+*.kubeconfig
+credentials.json
+.credentials.json
+firebase-adminsdk*.json
+google-service-account*.json
+
+# Archives / dumps
+*.sql
+*.dump
+*.tar
+*.tar.gz
+*.zip
