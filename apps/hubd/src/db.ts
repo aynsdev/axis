@@ -13,7 +13,7 @@ import type {
   TaskEventKind,
   TaskSource,
   TaskStatus,
-} from '@aynshq/shared';
+} from '@axis/shared';
 import { config } from './config.ts';
 
 export const db = new Database(config.dbPath);

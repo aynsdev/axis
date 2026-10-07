@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { ServerMessage, Task, TaskEvent } from '@aynshq/shared';
+import type { ServerMessage, Task, TaskEvent } from '@axis/shared';
 import { qk } from './api';
 import { toasts } from './toasts';
 
@@ -57,6 +57,8 @@ export function useLiveUpdates(): ConnectionState {
         else if (msg.type === 'settings.updated') {
           qc.setQueryData(qk.settings, msg.settings);
           refreshStats();
+        } else if (msg.type === 'workspace.updated') {
+          qc.setQueryData(qk.workspace, msg.snapshot);
         } else if (msg.type === 'usage.updated') {
           qc.invalidateQueries({ queryKey: ['usage'] });
           qc.invalidateQueries({ queryKey: ['sessions'] });

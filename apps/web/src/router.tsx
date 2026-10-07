@@ -10,6 +10,7 @@ import { Toaster } from '@/components/toaster';
 import { TaskDetailPage } from '@/pages/task-detail';
 import { TasksPage } from '@/pages/tasks';
 import { UsagePage } from '@/pages/usage';
+import { WorkspacePage } from '@/pages/workspace';
 
 function Root() {
   const connection = useLiveUpdates();
@@ -36,6 +37,7 @@ const taskRoute = createRoute({
 
 const routes = [
   createRoute({ getParentRoute: () => root, path: '/', component: OverviewPage }),
+  createRoute({ getParentRoute: () => root, path: '/workspace', component: WorkspacePage }),
   createRoute({ getParentRoute: () => root, path: '/tasks', component: TasksPage }),
   createRoute({ getParentRoute: () => root, path: '/tasks/new', component: NewTaskPage }),
   taskRoute,

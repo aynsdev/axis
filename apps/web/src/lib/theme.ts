@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 export type ThemeChoice = 'dark' | 'light' | 'system';
-const KEY = 'aynshq-theme';
+const KEY = 'axis-theme';
 
 function read(): ThemeChoice {
   try {

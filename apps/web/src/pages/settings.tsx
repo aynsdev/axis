@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BellRing, Check, FileText, Trash2 } from 'lucide-react';
-import { NOTIFY_EVENTS, type NotifyEvent, type Settings } from '@aynshq/shared';
+import { NOTIFY_EVENTS, type NotifyEvent, type Settings } from '@axis/shared';
 import { AgentBadge, Button, buttonClass, Card, Checkbox, EmptyState, ErrorNote, Field, IconButton, Input, Page, PageSection } from '@/components/ui';
 import { api, qk } from '@/lib/api';
 

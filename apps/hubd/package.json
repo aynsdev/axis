@@ -1,5 +1,5 @@
 {
-  "name": "@aynshq/hubd",
+  "name": "@axis/hubd",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "typecheck": "tsc -p ."
   },
   "dependencies": {
-    "@aynshq/shared": "workspace:*",
+    "@axis/shared": "workspace:*",
     "@hono/node-server": "^1.13.0",
     "@hono/node-ws": "^1.0.0",
     "better-sqlite3": "^11.7.0",

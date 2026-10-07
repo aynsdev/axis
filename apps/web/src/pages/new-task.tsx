@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { BookmarkPlus, FolderGit2, Play } from 'lucide-react';
-import type { AgentKind, PermissionLevel, TaskPriority, Template } from '@aynshq/shared';
+import type { AgentKind, PermissionLevel, TaskPriority, Template } from '@axis/shared';
 import {
   Button,
   buttonClass,
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui';
 import { api, qk } from '@/lib/api';
 
-const LAST_KEY = 'aynshq-last-task';
+const LAST_KEY = 'axis-last-task';
 
 function readLast(): { repoId?: string; agent?: AgentKind } {
   try {

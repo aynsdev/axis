@@ -110,6 +110,7 @@ export const NOTIFY_EVENTS = {
   'pr.opened': 'Draft PR opened automatically',
   'pr.merged': 'PR merged or closed',
   'pr.checksFailed': 'PR checks failing',
+  'claude.limit': 'Claude plan limit at 90%',
   'codex.limit': 'Codex plan limit at 90%',
 } as const;
 
@@ -183,6 +184,16 @@ export interface RateLimitWindow {
   windowMinutes: number;
   /** Unix seconds. */
   resetsAt: number | null;
+  /** Narrows a window to one model family, such as Opus. */
+  scope?: string;
+}
+
+export interface PlanLimits {
+  at: string;
+  plan: string | null;
+  windows: RateLimitWindow[];
+  /** Why the latest reading failed; `windows` then holds the last good one. */
+  error?: string;
 }
 
 export interface UsageReport {
@@ -192,7 +203,8 @@ export interface UsageReport {
   byModel: Array<TokenTotals & { agent: AgentKind; model: string; sessions: number }>;
   /** `priced` is false when a project only has Codex usage, which has no cost estimate. */
   byProject: Array<TokenTotals & { cwd: string; project: string; sessions: number; priced: boolean }>;
-  codexLimits: { at: string; plan: string | null; windows: RateLimitWindow[] } | null;
+  claudeLimits: PlanLimits | null;
+  codexLimits: PlanLimits | null;
   lastScanAt: string | null;
 }
 
@@ -218,9 +230,64 @@ export interface TaskDiff {
   commitsAhead: number;
 }
 
+export type WorkerStatus = 'working' | 'idle' | 'done';
+
+export interface WorkspaceActivity {
+  at: string;
+  text: string;
+}
+
+/** A Claude Code or Codex session, or a sub agent it spawned, as seen live on disk. */
+export interface WorkspaceAgent {
+  /** `claude:<session>` for a session; `claude:<session>:<agent>` for its sub agent. */
+  id: string;
+  agent: AgentKind;
+  kind: 'main' | 'sub';
+  parentId: string | null;
+  sessionId: string;
+  /** Display name: a custom agent's persona, or the project for a session. */
+  name: string;
+  /** `Claude Code`, `Codex`, or the sub agent type such as `Explore`. */
+  role: string;
+  /** Session title, or what the sub agent was asked to do. */
+  title: string | null;
+  project: string | null;
+  cwd: string | null;
+  model: string | null;
+  status: WorkerStatus;
+  /** What it is doing right now, such as `Editing server.ts`. */
+  activity: string;
+  startedAt: string | null;
+  lastAt: string;
+  /** Set when the hub started this session. */
+  taskId: string | null;
+  /** Newest last. */
+  recent: WorkspaceActivity[];
+}
+
+/** A custom agent defined in `.claude/agents`, whether or not it is running. */
+export interface TeamMember {
+  /** The `subagent_type` sessions spawn it by, such as `react-engineer`. */
+  type: string;
+  /** Persona from the description (`Zuck. React specialist…`), else a label from the type. */
+  name: string;
+  /** What it does, in a few words. */
+  role: string;
+  model: string | null;
+  /** `project` when it comes from a repo's `.claude/agents`. */
+  source: 'user' | 'project';
+}
+
+export interface WorkspaceSnapshot {
+  at: string;
+  agents: WorkspaceAgent[];
+  team: TeamMember[];
+}
+
 export type ServerMessage =
   | { type: 'task.updated'; task: Task }
   | { type: 'task.event'; event: TaskEvent }
   | { type: 'usage.updated' }
   | { type: 'notification'; notification: HubNotification }
-  | { type: 'settings.updated'; settings: Settings };
+  | { type: 'settings.updated'; settings: Settings }
+  | { type: 'workspace.updated'; snapshot: WorkspaceSnapshot };

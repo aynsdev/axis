@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { ArrowUpRight } from 'lucide-react';
-import type { LocalSession } from '@aynshq/shared';
+import type { LocalSession } from '@axis/shared';
 import { billableTokens, formatRelative, formatTokens, formatUsd } from '@/lib/format';
 import { useNow } from '@/lib/use-now';
 import { AgentBadge } from './ui';

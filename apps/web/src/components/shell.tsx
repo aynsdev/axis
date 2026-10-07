@@ -3,6 +3,7 @@ import { Link, useRouterState } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import {
   BarChart3,
+  Building2,
   FolderGit2,
   History,
   LayoutGrid,
@@ -25,7 +26,7 @@ import { useTheme, type ThemeChoice } from '@/lib/theme';
 import { buttonClass, IconButton } from './ui';
 
 interface NavItem {
-  to: '/' | '/tasks' | '/sessions' | '/usage' | '/repos' | '/settings';
+  to: '/' | '/workspace' | '/tasks' | '/sessions' | '/usage' | '/repos' | '/settings';
   label: string;
   icon: LucideIcon;
   exact?: boolean;
@@ -34,6 +35,7 @@ interface NavItem {
 // Navigation source, kept apart from rendering so a command palette can reuse it.
 export const NAV: NavItem[] = [
   { to: '/', label: 'Overview', icon: LayoutGrid, exact: true },
+  { to: '/workspace', label: 'Workspace', icon: Building2 },
   { to: '/tasks', label: 'Tasks', icon: ListTodo },
   { to: '/sessions', label: 'Sessions', icon: History },
   { to: '/usage', label: 'Usage', icon: BarChart3 },
@@ -41,7 +43,7 @@ export const NAV: NavItem[] = [
   { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
-const COLLAPSE_KEY = 'aynshq-sidebar-collapsed';
+const COLLAPSE_KEY = 'axis-sidebar-collapsed';
 
 function useCollapsed() {
   const [collapsed, setCollapsed] = useState(() => {
@@ -69,7 +71,7 @@ function Brand({ collapsed }: { collapsed?: boolean }) {
       </span>
       {!collapsed && (
         <span className="flex flex-col leading-tight">
-          <span className="font-semibold tracking-[-0.01em]">aynshq</span>
+          <span className="font-semibold tracking-[-0.01em]">Axis</span>
           <span className="text-small text-fg-muted">Agents hub</span>
         </span>
       )}
@@ -214,7 +216,7 @@ export function AppShell({ connection, children }: { connection: ConnectionState
             <IconButton label="Open navigation" className="-ml-1.5 md:hidden" onClick={() => setMobileOpen(true)}>
               <Menu />
             </IconButton>
-            <span className="truncate text-fg-muted md:hidden">aynshq</span>
+            <span className="truncate text-fg-muted md:hidden">Axis</span>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             {pathname !== '/tasks/new' && pathname !== '/tasks' && (

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ListTodo, Plus } from 'lucide-react';
-import type { Task } from '@aynshq/shared';
+import type { Task } from '@axis/shared';
 import { TaskList } from '@/components/task-list';
 import { buttonClass, Card, EmptyState, ErrorNote, Page } from '@/components/ui';
 import { api, qk } from '@/lib/api';

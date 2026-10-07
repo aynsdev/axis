@@ -14,14 +14,15 @@ import type {
   TaskDiff,
   TaskEvent,
   UsageReport,
-} from '@aynshq/shared';
+  WorkspaceSnapshot,
+} from '@axis/shared';
 
 export class ApiError extends Error {}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`/api${path}`, {
     ...init,
-    headers: { 'content-type': 'application/json', 'x-aynshq': '1', ...init?.headers },
+    headers: { 'content-type': 'application/json', 'x-axis': '1', ...init?.headers },
   });
   if (res.status === 204) return undefined as T;
   const body = await res.json().catch(() => ({}));
@@ -63,6 +64,7 @@ export const api = {
   sessions: (days: number, agent: AgentFilter, limit = 100) =>
     request<LocalSession[]>(`/sessions?days=${days}&agent=${agent}&limit=${limit}`),
   rescan: () => post<{ files: number; changed: number; ms: number }>('/usage/rescan'),
+  workspace: () => request<WorkspaceSnapshot>('/workspace'),
 };
 
 export const qk = {
@@ -72,6 +74,7 @@ export const qk = {
   events: (id: string) => ['events', id] as const,
   diff: (id: string) => ['diff', id] as const,
   stats: ['stats'] as const,
+  workspace: ['workspace'] as const,
   github: ['github'] as const,
   settings: ['settings'] as const,
   templates: ['templates'] as const,

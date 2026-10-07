@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
-import type { AgentFilter, RateLimitWindow, UsageReport } from '@aynshq/shared';
+import type { AgentFilter, PlanLimits, RateLimitWindow } from '@axis/shared';
 import { BarChart } from '@/components/bar-chart';
 import { StatTile } from '@/components/stat';
 import { AGENT_FILTERS, Button, Card, ErrorNote, Page, PageSection, RANGE_FILTERS, ToggleGroup } from '@/components/ui';
@@ -14,8 +14,9 @@ type Metric = 'tokens' | 'cost';
 
 const dayLabel = (iso: string, opts: Intl.DateTimeFormatOptions) => new Date(`${iso}T00:00:00`).toLocaleDateString(undefined, opts);
 
-function windowName(w: RateLimitWindow) {
-  if (w.windowMinutes === 300) return '5-hour window';
+function windowName(w: RateLimitWindow): string {
+  if (w.scope) return `${windowName({ ...w, scope: undefined })} · ${w.scope}`;
+  if (w.windowMinutes === 300) return '5-hour session';
   if (w.windowMinutes === 10080) return 'Weekly';
   if (w.windowMinutes % 1440 === 0) return `${w.windowMinutes / 1440}-day window`;
   if (w.windowMinutes % 60 === 0) return `${w.windowMinutes / 60}-hour window`;
@@ -56,20 +57,31 @@ function Meter({ w, now }: { w: RateLimitWindow; now: number }) {
   );
 }
 
-function CodexLimits({ limits }: { limits: NonNullable<UsageReport['codexLimits']> }) {
+function LimitsCard({ title, limits, source }: { title: string; limits: PlanLimits; source: string }) {
   const now = useNow(60_000);
+  const plan = limits.plan ? `${limits.plan[0].toUpperCase()}${limits.plan.slice(1)} plan · ` : '';
   return (
-    <PageSection title="Codex plan limits">
-      <Card className="flex flex-col gap-5 p-5">
-        <div className="grid gap-6 sm:grid-cols-2">
-          {limits.windows.map((w) => (
-            <Meter key={w.label} w={w} now={now} />
-          ))}
-        </div>
-        <p className="text-small text-fg-muted">
-          {limits.plan ? `${limits.plan[0].toUpperCase()}${limits.plan.slice(1)} plan · ` : ''}
-          As of your last Codex turn, {formatRelative(limits.at, now)}.
-        </p>
+    <PageSection title={title}>
+      <Card className="flex h-full flex-col gap-5 p-5">
+        {limits.windows.length > 0 && (
+          <div className="grid gap-6 sm:grid-cols-2">
+            {limits.windows.map((w) => (
+              <Meter key={w.label} w={w} now={now} />
+            ))}
+          </div>
+        )}
+        {limits.error && (
+          <p className="flex items-start gap-2 text-small text-fg">
+            <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden />
+            {limits.error}
+          </p>
+        )}
+        {limits.windows.length > 0 && (
+          <p className="mt-auto text-small text-fg-muted">
+            {plan}
+            {source}, {formatRelative(limits.at, now)}.
+          </p>
+        )}
       </Card>
     </PageSection>
   );
@@ -134,6 +146,8 @@ export function UsagePage() {
   const t = r?.totals;
   const costMetric = metric === 'cost' && agent !== 'codex';
   const format = costMetric ? (n: number) => formatUsd(n) : formatTokens;
+  const showClaudeLimits = agent !== 'codex' && !!(r?.claudeLimits?.windows.length || r?.claudeLimits?.error);
+  const showCodexLimits = agent !== 'claude' && !!r?.codexLimits?.windows.length;
 
   return (
     <Page
@@ -168,7 +182,12 @@ export function UsagePage() {
         <StatTile label="Sessions" value={t?.sessions ?? '–'} detail={r && `${r.byAgent.map((a) => `${a.sessions} ${a.agent === 'claude' ? 'Claude' : 'Codex'}`).join(' · ') || 'none'}`} />
       </div>
 
-      {r?.codexLimits && agent !== 'claude' && r.codexLimits.windows.length > 0 && <CodexLimits limits={r.codexLimits} />}
+      {r && (showClaudeLimits || showCodexLimits) && (
+        <div className="grid gap-8 xl:grid-cols-2">
+          {showClaudeLimits && <LimitsCard title="Claude plan limits" limits={r.claudeLimits!} source="Checked with Anthropic" />}
+          {showCodexLimits && <LimitsCard title="Codex plan limits" limits={r.codexLimits!} source="As of your last Codex turn" />}
+        </div>
+      )}
 
       {days > 1 && (
         <PageSection

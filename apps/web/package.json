@@ -1,5 +1,5 @@
 {
-  "name": "@aynshq/web",
+  "name": "@axis/web",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,19 +8,21 @@
     "typecheck": "tsc -p ."
   },
   "dependencies": {
-    "@aynshq/shared": "workspace:*",
+    "@axis/shared": "workspace:*",
     "@fontsource-variable/inter": "^5.1.0",
     "@tanstack/react-query": "^5.62.0",
     "@tanstack/react-router": "^1.90.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "three": "^0.180.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.180.0",
     "@vitejs/plugin-react": "^4.3.4",
     "tailwindcss": "^4.0.0",
     "vite": "^6.0.0"

@@ -19,7 +19,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
-import type { Task, TaskEvent, TaskEventKind, TaskPriority } from '@aynshq/shared';
+import type { Task, TaskEvent, TaskEventKind, TaskPriority } from '@axis/shared';
 import {
   AgentBadge,
   Button,

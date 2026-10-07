@@ -1,4 +1,4 @@
-import type { Task, TaskEventKind } from '@aynshq/shared';
+import type { Task, TaskEventKind } from '@axis/shared';
 
 export interface RunHandlers {
   event(kind: TaskEventKind, text: string): void;

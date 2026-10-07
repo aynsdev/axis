@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { History } from 'lucide-react';
-import type { AgentFilter } from '@aynshq/shared';
+import type { AgentFilter } from '@axis/shared';
 import { SessionList } from '@/components/session-list';
 import { AGENT_FILTERS, Card, EmptyState, ErrorNote, Page, RANGE_FILTERS, ToggleGroup } from '@/components/ui';
 import { api, qk } from '@/lib/api';

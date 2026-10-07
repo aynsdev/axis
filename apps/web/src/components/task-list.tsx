@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router';
-import type { Task } from '@aynshq/shared';
+import type { Task } from '@axis/shared';
 import { formatDuration, formatRelative, formatTokens, formatUsd } from '@/lib/format';
 import { useNow } from '@/lib/use-now';
 import { AgentBadge, PrBadge, PriorityChip, StatusBadge } from './ui';
