@@ -177,6 +177,7 @@ const openPrSchema = z.object({
   title: z.string().trim().max(256).optional(),
   body: z.string().max(60_000).optional(),
   draft: z.boolean().optional(),
+  includePrompt: z.boolean().optional(),
 });
 
 api.post('/tasks/:id/pr', async (c) => {

@@ -225,10 +225,11 @@ function OpenPrDialog({ task, open, onClose }: { task: Task; open: boolean; onCl
   const [title, setTitle] = useState(task.title);
   const [body, setBody] = useState('');
   const [draft, setDraft] = useState(false);
+  const [includePrompt, setIncludePrompt] = useState(false);
   const gh = useQuery({ queryKey: qk.github, queryFn: api.github, enabled: open, staleTime: 60_000 });
   const remote = useQuery({ queryKey: qk.repoRemote(task.repoId), queryFn: () => api.repoRemote(task.repoId), enabled: open });
   const create = useMutation({
-    mutationFn: () => api.openPr(task.id, { title, body: body || undefined, draft }),
+    mutationFn: () => api.openPr(task.id, { title, body: body || undefined, draft, includePrompt }),
     onSuccess: (t) => {
       qc.setQueryData(qk.task(t.id), t);
       onClose();
@@ -266,10 +267,23 @@ function OpenPrDialog({ task, open, onClose }: { task: Task; open: boolean; onCl
         }}
       >
         <Field label="Title">{(p) => <Input {...p} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={256} required />}</Field>
-        <Field label="Description" hint="Leave empty to use the agent's final message, the prompt and the diff stat.">
+        <Field label="Description" hint="Leave empty to use the agent's final message and the diff stat.">
           {(p) => <Textarea {...p} value={body} onChange={(e) => setBody(e.target.value)} className="min-h-28" />}
         </Field>
-        <Checkbox label="Open as draft" checked={draft} onChange={(e) => setDraft(e.target.checked)} />
+        <div className="flex flex-col gap-3">
+          <Checkbox label="Open as draft" checked={draft} onChange={(e) => setDraft(e.target.checked)} />
+          <Checkbox
+            label="Include the task prompt in the description"
+            description={
+              body.trim()
+                ? 'Only applies when the description is left empty.'
+                : "Anyone who can see the PR can read it. Leave this off if the prompt mentions secrets, customer data or confidential details."
+            }
+            checked={includePrompt && !body.trim()}
+            disabled={!!body.trim()}
+            onChange={(e) => setIncludePrompt(e.target.checked)}
+          />
+        </div>
 
         {blocker && <ErrorNote>{blocker}</ErrorNote>}
         {create.error && <ErrorNote>{(create.error as Error).message}</ErrorNote>}

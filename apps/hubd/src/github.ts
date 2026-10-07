@@ -54,7 +54,8 @@ export async function pushBranch(cwd: string, branch: string) {
 
 const AGENT_NAMES = { claude: 'Claude Code', codex: 'Codex' } as const;
 
-export function defaultPrBody(task: Task, stat: string): string {
+/** The generated description; the prompt is left out unless asked for, since it may hold private context. */
+export function defaultPrBody(task: Task, stat: string, includePrompt = false): string {
   const quoted = task.prompt
     .trim()
     .split('\n')
@@ -63,12 +64,7 @@ export function defaultPrBody(task: Task, stat: string): string {
   return [
     task.summary?.trim() || '_No summary from the agent._',
     '',
-    '<details><summary>Prompt</summary>',
-    '',
-    quoted,
-    '',
-    '</details>',
-    '',
+    ...(includePrompt ? ['<details><summary>Prompt</summary>', '', quoted, '', '</details>', ''] : []),
     stat ? `\`\`\`\n${stat}\n\`\`\`` : '',
     '',
     `---\nOpened from Axis · ${AGENT_NAMES[task.agent]}${task.model ? ` (${task.model})` : ''} · task \`${task.id}\``,
