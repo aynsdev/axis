@@ -223,7 +223,7 @@ export function NewTaskPage() {
           </fieldset>
           <Checkbox
             label="Open a draft PR when it succeeds"
-            description={prBlocker ?? 'Pushes the branch and opens a draft PR. Otherwise you open it from the task page.'}
+            description={prBlocker ?? "Pushes the branch and opens a draft PR, without the task prompt in its description. Otherwise you open it from the task page."}
             checked={autoPr && !prBlocker}
             disabled={!!prBlocker}
             onChange={(e) => setAutoPr(e.target.checked)}

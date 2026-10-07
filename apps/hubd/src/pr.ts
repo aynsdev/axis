@@ -63,7 +63,7 @@ export async function openPr(taskId: string, input: OpenPrInput, opts: { auto?: 
         base: task.baseBranch,
         head: task.branch,
         title: input.title?.trim() || task.title,
-        body: input.body?.trim() || defaultPrBody(task, diff.stat),
+        body: input.body?.trim() || defaultPrBody(task, diff.stat, input.includePrompt ?? false),
         draft: input.draft ?? false,
       });
       emitEvent(task.id, 'system', `${label}: opened ${pr.state === 'draft' ? 'draft ' : ''}PR #${pr.number} · ${pr.url}`);

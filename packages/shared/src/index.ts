@@ -143,6 +143,8 @@ export interface OpenPrInput {
   title?: string;
   body?: string;
   draft?: boolean;
+  /** Quote the task prompt in the generated description. Off by default: prompts can hold private context. */
+  includePrompt?: boolean;
 }
 
 export interface GithubStatus {
