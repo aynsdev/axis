@@ -49,7 +49,7 @@ AXIS_PORT=4400 pnpm dev   # the dashboard proxy follows AXIS_PORT
 
 1. Open **Repositories** and add the absolute path of a git repo.
 2. Choose **New task**: pick the repo, Claude or Codex, a permission level, and write a prompt.
-3. Watch it on the task page, or zoom out to **Workspace** to see every session and sub agent at their desks.
+3. Watch it on the task page, or open **Workspace** (the globe in the header) to see every session and sub agent at their desks.
 4. When it finishes, review the diff and choose **Open PR**.
 
 ### Troubleshooting
@@ -114,12 +114,14 @@ It only reads bytes added since the last pass. The first import of about 2 GB ta
 
 ### Workspace
 
-**Workspace** is a 3D voxel office where you can watch your agents work, live.
+**Workspace** (the globe button in the header) is a 3D voxel office where you can watch your agents work, live.
 
 - **Your team:** every agent in `~/.claude/agents` (plus a repo's `.claude/agents`) gets an office with a name plate. A description that starts with a name, like `Zuck. React specialist…`, gives that agent its persona. When a session spawns it, the agent sits up, its monitors scroll, and its plate shows what it's doing (`Editing server.ts`). Parallel runs show as `×2`.
 - **Hot desks** seat built-in sub agents such as Explore and Plan.
 - **Command desks** around the hologram seat up to four Claude Code and Codex sessions active in the last 30 minutes.
-- Click a desk or a roster entry to see its runs, which session started them, and recent tool calls. The office follows your light or dark theme.
+- Agents with nothing to do get up after a few seconds and wander their office, then walk back and sit down when work arrives. With reduced motion turned on in your OS, they stay seated.
+- Click a desk, a character or a roster entry to see its runs, which session started them, and recent tool calls. The office follows your light or dark theme.
+- **Fullscreen** (or press `F`) fills the screen with the office; `Esc` exits.
 
 The hub tails transcripts every 2 seconds while a dashboard is open, so updates are near real time.
 
