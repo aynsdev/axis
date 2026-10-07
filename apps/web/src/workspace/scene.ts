@@ -4,7 +4,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
-import { Character, lookFor } from './character';
+import { Character, lookFor, type Wander } from './character';
 import { allDesks, MAX_POOL, type Desk, type Office } from './model';
 import { ACCENTS, STATUS_COLORS, type DeskStatus } from './palette';
 import { backdropTexture, screenTexture, signTexture, textTexture, type ScreenKind } from './textures';
@@ -70,8 +70,8 @@ interface Seat {
   screens: THREE.Texture[];
   screenMat: THREE.MeshBasicMaterial;
   light: THREE.MeshBasicMaterial;
-  anchor: THREE.Vector3;
-  floor: THREE.Vector3;
+  /** Height of the name plate above the character's feet. */
+  labelY: number;
 }
 
 type RoomKind = 'team' | 'pool' | 'vacant' | 'plaza';
@@ -83,6 +83,15 @@ interface Room {
   seats: Seat[];
   lamp: THREE.Vector3 | null;
 }
+
+const v = (x: number, z: number) => new THREE.Vector3(x, 0, z);
+
+/** Open floor in a team office: the aisle right of the desk and the front of the room. */
+const TEAM_WANDER: Wander = { stand: v(1.6, -2.3), spots: [v(4.2, -1.2), v(6, 1.5), v(4.6, 4.6), v(6.2, 5.2), v(3, 2), v(2.6, 0.2)] };
+/** The open band in front of the hot desks. */
+const POOL_SPOTS = [v(-6, 3.2), v(-2, 3.6), v(2, 3), v(6, 3.4), v(0, 5), v(-2.4, 5.2), v(2.6, 5)];
+/** Session desks only have room to pace behind the chair. */
+const PLAZA_WANDER: Wander = { stand: v(0, 1.6), spots: [v(-1.5, 1.5), v(1.5, 1.6), v(0, 1.9)] };
 
 /** Room id for the session desks around the hologram. */
 const PLAZA = -1;
@@ -269,7 +278,7 @@ export class WorkspaceScene {
     this.selectedId = id;
     this.placeSelection();
     const seat = id ? this.seatOf(id) : null;
-    if (seat && focus) this.focusOn(seat.floor.clone().setY(1.5), Math.min(this.distance(), 52));
+    if (seat && focus) this.focusOn(this.feet(seat).setY(1.5), Math.min(this.distance(), 52));
   }
 
   setTheme(night: boolean) {
@@ -373,6 +382,7 @@ export class WorkspaceScene {
     });
     this.updateCat(dt);
     if (this.selection.visible) {
+      this.placeSelection();
       const s = 1 + (this.motion ? Math.sin(t * 3) * 0.06 : 0);
       this.selection.scale.set(s, s, 1);
     }
@@ -383,7 +393,9 @@ export class WorkspaceScene {
 
   private emitLabels() {
     const labels: LabelPos[] = [];
-    for (const room of this.rooms.values()) for (const seat of room.seats) labels.push({ id: seat.id, ...this.project(seat.anchor) });
+    const p = new THREE.Vector3();
+    for (const room of this.rooms.values())
+      for (const seat of room.seats) labels.push({ id: seat.id, ...this.project(this.feet(seat, p).setY(seat.labelY + seat.character.rise * 0.8)) });
     labels.push({ id: '__online', ...this.project(this.onlineAnchor) });
     const a = this.project(this.controls.target);
     const b = this.project(this.controls.target.clone().add(new THREE.Vector3(1, 0, -1).normalize()));
@@ -488,6 +500,11 @@ export class WorkspaceScene {
     for (const r of this.rooms.values()) r.group.traverse((o) => o.userData.pick && this.pickables.push(o as THREE.Mesh));
   }
 
+  /** Where a seat's character is now, on the floor; it may have wandered off. */
+  private feet(seat: Seat, out = new THREE.Vector3()) {
+    return seat.character.group.getWorldPosition(out).setY(0);
+  }
+
   private seatOf(id: string): Seat | null {
     for (const r of this.rooms.values()) for (const s of r.seats) if (s.id === id) return s;
     return null;
@@ -496,7 +513,7 @@ export class WorkspaceScene {
   private placeSelection() {
     const seat = this.selectedId ? this.seatOf(this.selectedId) : null;
     this.selection.visible = !!seat;
-    if (seat) this.selection.position.copy(seat.floor).setY(0.12);
+    if (seat) this.selection.position.copy(this.feet(seat)).setY(0.12);
   }
 
   // ---------- Materials ----------
@@ -588,7 +605,7 @@ export class WorkspaceScene {
         for (const sc of screens) this.monitorFrame(b, sc.x, sc.y, -2.15, sc.w, sc.h);
         b.box(x - 0.8, 1.55, -1.05, 1.6, 0.08, 0.5, '#1f2228');
         this.chair(b, x, 0.7, accent);
-        if (d) seats.push(this.seat(group, d, new THREE.Vector3(x, 0, 0.7), screens, -2.02, 'sub'));
+        if (d) seats.push(this.seat(group, d, new THREE.Vector3(x, 0, 0.7), screens, -2.02, 'sub', { stand: v(x, 2.1), spots: POOL_SPOTS }));
       });
       const sign = new THREE.Mesh(new THREE.PlaneGeometry(6, 1.5), new THREE.MeshBasicMaterial({ map: textTexture('HOT DESKS', '#f2f4f8'), transparent: true, toneMapped: false }));
       sign.position.set(0, 3.4, -7.7);
@@ -612,7 +629,7 @@ export class WorkspaceScene {
       this.chair(b, MAIN_SEAT.x, MAIN_SEAT.z, accent);
       // Sticky notes behind the desk, like a real planning wall.
       if (row !== this.grid.rows[0]) for (let k = 0; k < 4; k++) b.box(-3 + k * 0.7 + r() * 0.2, 1.2 + r() * 0.6, -7.98, 0.45, 0.45, 0.04, k % 2 ? '#f5d76e' : '#f0b45a', { glow: true, jitter: 0.04 });
-      if (d) seats.push(this.seat(group, d, MAIN_SEAT, screens, -5.12, 'main'));
+      if (d) seats.push(this.seat(group, d, MAIN_SEAT, screens, -5.12, 'main', TEAM_WANDER));
       this.lounge(b, r, kind === 'team');
     }
 
@@ -657,16 +674,15 @@ export class WorkspaceScene {
       b.box(-0.8, 1.55, -1.45, 1.6, 0.08, 0.5, '#1f2228');
       this.chair(b, 0, 0.3, accent);
       pod.add(b.build({ lit: this.litMat, glow: this.glowMat }));
-      if (d) seats.push(this.seat(pod, d, new THREE.Vector3(0, 0, 0.3), screens, -2.42, 'sub'));
+      if (d) seats.push(this.seat(pod, d, new THREE.Vector3(0, 0, 0.3), screens, -2.42, 'sub', PLAZA_WANDER));
     });
     this.scene.add(group);
     for (const s of seats) this.setSeatStatus(s, s.status);
     return { kind: 'plaza', key, group, seats, lamp: null };
   }
 
-  private seat(parent: THREE.Group, d: Desk, pos: THREE.Vector3, screens: Array<{ x: number; y: number; w: number; h: number; kind: ScreenKind }>, screenZ: number, size: 'main' | 'sub'): Seat {
-    const character = new Character(lookFor(d.id, d.accent, d.zone === 'session' ? 'main' : 'sub'), this.mat, d.id);
-    character.group.position.copy(pos);
+  private seat(parent: THREE.Group, d: Desk, pos: THREE.Vector3, screens: Array<{ x: number; y: number; w: number; h: number; kind: ScreenKind }>, screenZ: number, size: 'main' | 'sub', wander: Wander): Seat {
+    const character = new Character(lookFor(d.id, d.accent, d.zone === 'session' ? 'main' : 'sub'), this.mat, d.id, pos, wander);
     parent.add(character.group);
 
     const screenMat = new THREE.MeshBasicMaterial({ color: '#ffffff', toneMapped: false });
@@ -692,8 +708,6 @@ export class WorkspaceScene {
     pick.userData = { agentId: d.id, pick: true };
     parent.add(pick);
 
-    parent.updateWorldMatrix(true, false);
-    const world = parent.localToWorld(pos.clone());
     return {
       id: d.id,
       status: d.status,
@@ -701,8 +715,7 @@ export class WorkspaceScene {
       screens: textures,
       screenMat,
       light,
-      anchor: world.clone().setY(size === 'main' ? 4.3 : 3.9),
-      floor: world.clone(),
+      labelY: size === 'main' ? 4.3 : 3.9,
     };
   }
 

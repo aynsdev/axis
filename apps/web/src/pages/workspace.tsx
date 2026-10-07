@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ChevronDown, CornerDownRight, Crosshair, ExternalLink, Plus, Users } from 'lucide-react';
+import { ArrowLeft, ChevronDown, CornerDownRight, Crosshair, ExternalLink, Maximize, Minimize, Plus, Users } from 'lucide-react';
 import type { WorkspaceAgent, WorkspaceSnapshot } from '@axis/shared';
 import { buttonClass, ErrorNote, IconButton } from '@/components/ui';
 import { api, qk } from '@/lib/api';
@@ -45,6 +45,21 @@ function useMedia(query: string) {
     return () => mq.removeEventListener('change', update);
   }, [query]);
   return match;
+}
+
+/** Fullscreen for one element; `supported` is false where the browser has no Fullscreen API. */
+function useFullscreen(ref: RefObject<HTMLElement | null>) {
+  const [active, setActive] = useState(false);
+  useEffect(() => {
+    const update = () => setActive(!!document.fullscreenElement && document.fullscreenElement === ref.current);
+    document.addEventListener('fullscreenchange', update);
+    return () => document.removeEventListener('fullscreenchange', update);
+  }, [ref]);
+  const toggle = useCallback(() => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void ref.current?.requestFullscreen().catch(() => {});
+  }, [ref]);
+  return { active, toggle, supported: document.fullscreenEnabled };
 }
 
 const shortModel = (m: string | null) => (m ? m.replace(/^claude-/, '').replace(/-\d{8}$/, '').replace(/\[.*\]$/, '') : null);
@@ -336,7 +351,10 @@ export function WorkspacePage() {
   const reducedMotion = useMedia('(prefers-reduced-motion: reduce)');
   const wide = useMedia('(min-width: 1024px)');
 
+  const root = useRef<HTMLDivElement>(null);
   const mount = useRef<HTMLDivElement>(null);
+  const fullscreen = useFullscreen(root);
+  const toggleFullscreen = fullscreen.toggle;
   const sceneRef = useRef<WorkspaceScene | null>(null);
   const labelEls = useRef(new Map<string, HTMLElement>());
   const [ready, setReady] = useState(false);
@@ -390,6 +408,19 @@ export function WorkspacePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // F toggles fullscreen, unless the key is meant for a text field.
+  useEffect(() => {
+    if (!fullscreen.supported) return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      if (e.key.toLowerCase() !== 'f' || e.metaKey || e.ctrlKey || e.altKey || el.closest('input, textarea, select, [contenteditable="true"]')) return;
+      e.preventDefault();
+      toggleFullscreen();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [fullscreen.supported, toggleFullscreen]);
+
   useEffect(() => sceneRef.current?.setTheme(night), [night, ready]);
   useEffect(() => sceneRef.current?.setReducedMotion(reducedMotion), [reducedMotion, ready]);
   useEffect(() => sceneRef.current?.setOffice(office), [office, ready]);
@@ -431,7 +462,7 @@ export function WorkspacePage() {
   };
 
   return (
-    <div className="relative flex min-h-[480px] flex-1 overflow-hidden bg-[#05070d]">
+    <div ref={root} className="relative flex min-h-[480px] flex-1 overflow-hidden bg-[#05070d]">
       <h1 className="sr-only">Workspace</h1>
       <div ref={mount} className="absolute inset-0" aria-hidden />
 
@@ -478,7 +509,18 @@ export function WorkspacePage() {
         >
           <Crosshair className="size-4" aria-hidden /> Reset view
         </button>
-        <span className="hidden text-small text-white/60 lg:inline">Drag to orbit · scroll to zoom · right-drag to pan</span>
+        {fullscreen.supported && (
+          <button
+            onClick={fullscreen.toggle}
+            aria-pressed={fullscreen.active}
+            title={`${fullscreen.active ? 'Exit fullscreen' : 'Fullscreen'} (F)`}
+            className="inline-flex h-8 items-center gap-2 rounded-lg border border-white/15 bg-black/60 px-3 text-small font-medium text-white backdrop-blur-md hover:bg-black/80"
+          >
+            {fullscreen.active ? <Minimize className="size-4" aria-hidden /> : <Maximize className="size-4" aria-hidden />}
+            {fullscreen.active ? 'Exit fullscreen' : 'Fullscreen'}
+          </button>
+        )}
+        <span className="hidden text-small text-white/60 lg:inline">Drag to orbit · scroll to zoom · right-drag to pan · F for fullscreen</span>
       </div>
 
       {(error || glError) && (
