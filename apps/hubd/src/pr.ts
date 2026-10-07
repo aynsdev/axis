@@ -1,4 +1,4 @@
-import type { OpenPrInput, Task } from '@aynshq/shared';
+import type { OpenPrInput, Task } from '@axis/shared';
 import { repos, tasks } from './db.ts';
 import { commitLeftovers, diffAgainstBase } from './git.ts';
 import { createPr, defaultPrBody, findPrForBranch, githubStatus, prStatus, pushBranch, remoteUrl } from './github.ts';

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { HubNotification } from '@aynshq/shared';
+import type { HubNotification } from '@axis/shared';
 
 const MAX = 4;
 const TTL_MS = 7000;

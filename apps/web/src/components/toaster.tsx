@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { AlertTriangle, CheckCircle2, ExternalLink, Info, X, XCircle, type LucideIcon } from 'lucide-react';
-import type { HubNotification } from '@aynshq/shared';
+import type { HubNotification } from '@axis/shared';
 import { cn } from '@/lib/cn';
 import { toasts, useToasts } from '@/lib/toasts';
 

@@ -1,4 +1,4 @@
-import type { AgentKind } from '@aynshq/shared';
+import type { AgentKind } from '@axis/shared';
 import { runClaude } from './claude.ts';
 import { runCodex } from './codex.ts';
 import type { Runner } from './types.ts';

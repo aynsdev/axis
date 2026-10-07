@@ -1,11 +1,11 @@
 {
-  "name": "aynshq",
+  "name": "axis",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.27.0",
   "engines": { "node": ">=22" },
   "scripts": {
-    "dev": "concurrently -n hubd,web -c gray,white \"pnpm --filter @aynshq/hubd dev\" \"pnpm --filter @aynshq/web dev\"",
+    "dev": "concurrently -n hubd,web -c gray,white \"pnpm --filter @axis/hubd dev\" \"pnpm --filter @axis/web dev\"",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck"
   },

@@ -1,4 +1,4 @@
-import type { Task, TaskEventKind } from '@aynshq/shared';
+import type { Task, TaskEventKind } from '@axis/shared';
 import { bus } from './bus.ts';
 import { events, tasks, type TaskPatch } from './db.ts';
 

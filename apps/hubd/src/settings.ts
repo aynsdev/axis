@@ -1,4 +1,4 @@
-import { NOTIFY_EVENTS, type NotifyEvent, type Settings } from '@aynshq/shared';
+import { NOTIFY_EVENTS, type NotifyEvent, type Settings } from '@axis/shared';
 import { bus } from './bus.ts';
 import { config } from './config.ts';
 import { kv } from './db.ts';

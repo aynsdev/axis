@@ -12,7 +12,7 @@ import {
   XCircle,
   type LucideIcon,
 } from 'lucide-react';
-import type { AgentKind, PrChecks, PrState, PullRequest, TaskStatus } from '@aynshq/shared';
+import type { AgentKind, PrChecks, PrState, PullRequest, TaskStatus } from '@axis/shared';
 import { cn } from '@/lib/cn';
 
 // ---------- Button ----------

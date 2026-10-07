@@ -1,18 +1,20 @@
 import { Hono } from 'hono';
 import { createNodeWebSocket } from '@hono/node-ws';
 import { z } from 'zod';
-import { NOTIFY_EVENTS, type AgentFilter, type NotifyEvent, type Stats, type TaskStatus } from '@aynshq/shared';
+import { NOTIFY_EVENTS, type AgentFilter, type NotifyEvent, type Stats, type TaskStatus } from '@axis/shared';
 import { bus } from './bus.ts';
 import { config } from './config.ts';
 import { events, repos, taskStats, tasks, templates } from './db.ts';
 import { diffAgainstBase, inspectRepo, removeWorktree } from './git.ts';
 import { githubStatus, remoteUrl } from './github.ts';
 import { importNow } from './importer/index.ts';
+import { refreshClaudeLimits } from './importer/limits.ts';
 import { listSessions, today, usageReport } from './importer/report.ts';
 import { openPr, PrError, refreshPr } from './pr.ts';
 import { notify } from './notify.ts';
 import { cancel, enqueue, tick } from './queue.ts';
 import { getSettings, saveSettings } from './settings.ts';
+import { workspaceSnapshot } from './workspace.ts';
 
 export const app = new Hono();
 export const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -29,7 +31,7 @@ app.use('*', async (c, next) => {
   if (!LOCAL_HOST.test(c.req.header('host') ?? '')) return c.json({ error: 'Forbidden host' }, 403);
   const origin = c.req.header('origin');
   if (origin && !LOCAL_ORIGIN.test(origin)) return c.json({ error: 'Forbidden origin' }, 403);
-  if (c.req.method !== 'GET' && c.req.header('x-aynshq') !== '1') return c.json({ error: 'Missing x-aynshq header' }, 403);
+  if (c.req.method !== 'GET' && c.req.header('x-axis') !== '1') return c.json({ error: 'Missing x-axis header' }, 403);
   await next();
 });
 
@@ -243,7 +245,7 @@ api.put('/settings', async (c) => {
 });
 
 api.post('/notifications/test', (c) => {
-  notify('test', { title: 'Test notification', body: 'Notifications from aynshq are working.', level: 'info', path: '/settings' });
+  notify('test', { title: 'Test notification', body: 'Notifications from Axis are working.', level: 'info', path: '/settings' });
   return c.body(null, 204);
 });
 
@@ -276,10 +278,12 @@ api.get('/sessions', (c) => {
 });
 
 api.post('/usage/rescan', async (c) => {
-  const summary = await importNow();
-  if (summary.changed) bus.publish({ type: 'usage.updated' });
+  const [summary, limitsChanged] = await Promise.all([importNow(), refreshClaudeLimits()]);
+  if (summary.changed || limitsChanged) bus.publish({ type: 'usage.updated' });
   return c.json(summary);
 });
+
+api.get('/workspace', async (c) => c.json(await workspaceSnapshot()));
 
 app.route('/api', api);
 

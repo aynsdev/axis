@@ -1,4 +1,4 @@
-import type { Task } from '@aynshq/shared';
+import type { Task } from '@axis/shared';
 import { bus } from './bus.ts';
 import { repos, tasks } from './db.ts';
 import { commitLeftovers, createWorktree, worktreePathFor } from './git.ts';

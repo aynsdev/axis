@@ -1,5 +1,5 @@
 import { basename } from 'node:path';
-import type { AgentFilter, LocalSession, UsageReport } from '@aynshq/shared';
+import type { AgentFilter, LocalSession, UsageReport } from '@axis/shared';
 import { db } from '../db.ts';
 import { localDate } from './parsers.ts';
 import { store } from './store.ts';
@@ -67,6 +67,7 @@ export function usageReport(days: number, agent: AgentFilter): UsageReport {
     byAgent,
     byModel,
     byProject,
+    claudeLimits: store.getKv('claude.rateLimits') ?? null,
     codexLimits: store.getKv('codex.rateLimits') ?? null,
     lastScanAt: store.getKv<{ at: string }>('importer.lastScan')?.at ?? null,
   };

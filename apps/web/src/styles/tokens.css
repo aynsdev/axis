@@ -1,8 +1,9 @@
 /*
- * aynshq theme: Pedi token names and structure with a monochrome skin.
+ * Axis theme: Pedi token names and structure with a monochrome skin.
  * Pedi Red is replaced with near-black / off-white as the action color.
  * Semantic status hues stay, because status must stay legible.
  * Dark is the default; [data-theme] switches to light or system.
+ * [data-surface="dark"] keeps a region (the sidebar) dark in every theme.
  */
 
 :root {
@@ -24,14 +25,15 @@
   --text-small-size: 12px; --text-small-line-height: 18px;
 
   /* Layout */
-  --sidebar-width: 15.5rem;
-  --sidebar-width-collapsed: 3.5rem;
+  --sidebar-width: 16.25rem;
+  --sidebar-width-collapsed: 3rem;
   --header-height: 3.5rem;
 }
 
 /* ---------- Dark (default) ---------- */
 :root,
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+[data-surface="dark"] {
   color-scheme: dark;
 
   --color-bg-canvas: #0d0d0d;

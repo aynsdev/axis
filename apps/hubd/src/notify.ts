@@ -1,5 +1,5 @@
 import { execFile } from 'node:child_process';
-import type { HubNotification, NotifyEvent } from '@aynshq/shared';
+import type { HubNotification, NotifyEvent } from '@axis/shared';
 import { bus } from './bus.ts';
 import { config } from './config.ts';
 import { newId } from './db.ts';
@@ -25,12 +25,12 @@ async function desktop(n: HubNotification, sound: boolean) {
   const open = n.url ?? (n.path ? `${config.webUrl}${n.path}` : config.webUrl);
   const bin = await findNotifier();
   if (bin) {
-    const args = ['-title', 'aynshq', '-subtitle', n.title, '-message', n.body || ' ', '-open', open, '-group', `aynshq-${n.path ?? n.event}`];
+    const args = ['-title', 'Axis', '-subtitle', n.title, '-message', n.body || ' ', '-open', open, '-group', `axis-${n.path ?? n.event}`];
     if (sound) args.push('-sound', n.level === 'error' ? 'Basso' : 'Glass');
     execFile(bin, args, () => {});
     return;
   }
-  const script = `display notification ${appleString(n.body)} with title "aynshq" subtitle ${appleString(n.title)}${sound ? ' sound name "Glass"' : ''}`;
+  const script = `display notification ${appleString(n.body)} with title "Axis" subtitle ${appleString(n.title)}${sound ? ' sound name "Glass"' : ''}`;
   execFile('/usr/bin/osascript', ['-e', script], () => {});
 }
 

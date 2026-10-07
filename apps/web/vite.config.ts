@@ -3,7 +3,7 @@ import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
-const hub = `http://127.0.0.1:${process.env.AYNSHQ_PORT ?? 4317}`;
+const hub = `http://127.0.0.1:${process.env.AXIS_PORT ?? 4317}`;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],

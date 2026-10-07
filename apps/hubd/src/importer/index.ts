@@ -3,11 +3,11 @@ import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { Batch, parseClaudeLine, parseCodexLine, type CodexRateLimits, type ParseContext } from './parsers.ts';
-import { notify } from '../notify.ts';
+import { alertLimits } from './limits.ts';
 import { store, type FileRow } from './store.ts';
 
 const HOME = homedir();
-const CLAUDE_DIR = process.env.AYNSHQ_CLAUDE_PROJECTS ?? join(process.env.CLAUDE_CONFIG_DIR ?? join(HOME, '.claude'), 'projects');
+const CLAUDE_DIR = process.env.AXIS_CLAUDE_PROJECTS ?? join(process.env.CLAUDE_CONFIG_DIR ?? join(HOME, '.claude'), 'projects');
 const CODEX_HOME = process.env.CODEX_HOME ?? join(HOME, '.codex');
 const CODEX_DIRS = [join(CODEX_HOME, 'sessions'), join(CODEX_HOME, 'archived_sessions')];
 
@@ -105,30 +105,6 @@ async function importFile(path: string, agent: Agent, limits: { value?: CodexRat
   return true;
 }
 
-const ALERT_AT = 90;
-
-/** Notifies once per limit window cycle when usage crosses the threshold. */
-function alertCodexLimits(l: CodexRateLimits) {
-  const alerted = new Set(store.getKv<string[]>('codex.limitAlerted') ?? []);
-  let changed = false;
-  for (const w of l.windows) {
-    const id = `${w.label}:${w.resetsAt}`;
-    // A reading from a window that has already reset is stale.
-    if (w.usedPercent < ALERT_AT || alerted.has(id) || (w.resetsAt && w.resetsAt * 1000 < Date.now())) continue;
-    alerted.add(id);
-    changed = true;
-    const name = w.windowMinutes === 300 ? '5-hour' : w.windowMinutes === 10080 ? 'weekly' : `${Math.round(w.windowMinutes / 60)}-hour`;
-    const resets = w.resetsAt ? new Date(w.resetsAt * 1000).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' }) : 'soon';
-    notify('codex.limit', {
-      title: `Codex ${name} limit at ${Math.round(w.usedPercent)}%`,
-      body: `Resets ${resets}`,
-      level: 'warning',
-      path: '/usage',
-    });
-  }
-  if (changed) store.setKv('codex.limitAlerted', [...alerted].slice(-20));
-}
-
 let running: Promise<ImportSummary> | null = null;
 
 export interface ImportSummary {
@@ -158,7 +134,7 @@ async function scan(): Promise<ImportSummary> {
 
   if (limits.value && limits.value.at !== before) {
     store.setKv('codex.rateLimits', limits.value);
-    alertCodexLimits(limits.value);
+    alertLimits('codex', limits.value);
   }
 
   // Thread names are user-set, so they outrank generated titles.

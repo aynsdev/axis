@@ -1,10 +1,10 @@
 import { execFile, spawn } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { GithubStatus, PrChecks, PrState, PullRequest, Task } from '@aynshq/shared';
+import type { GithubStatus, PrChecks, PrState, PullRequest, Task } from '@axis/shared';
 import { git } from './git.ts';
 
 const exec = promisify(execFile);
-const GH = process.env.AYNSHQ_GH_BIN ?? 'gh';
+const GH = process.env.AXIS_GH_BIN ?? 'gh';
 
 /** Runs gh with an optional stdin payload; rejects with gh's own error text. */
 function gh(cwd: string, args: string[], stdin?: string): Promise<string> {
@@ -71,7 +71,7 @@ export function defaultPrBody(task: Task, stat: string): string {
     '',
     stat ? `\`\`\`\n${stat}\n\`\`\`` : '',
     '',
-    `---\nOpened from aynshq · ${AGENT_NAMES[task.agent]}${task.model ? ` (${task.model})` : ''} · task \`${task.id}\``,
+    `---\nOpened from Axis · ${AGENT_NAMES[task.agent]}${task.model ? ` (${task.model})` : ''} · task \`${task.id}\``,
   ]
     .filter((l, i, a) => !(l === '' && a[i - 1] === ''))
     .join('\n');
